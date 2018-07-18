@@ -56,10 +56,10 @@ class SearchAndReplace
     match = false
     until match.nil?
       match = line.index(@search, offset)
-      next unless match.is_a?(Integer)
-      o = Occurrence.new(filename, lineno, match + 1, line)
-      occurrences << o
-      offset = o.col + 1
+      offset = match + 2 if match.is_a?(Integer)
+      # Don't log a match if there isn't one or if the replacement on a regex would yield no change
+      next if !match.is_a?(Integer) || (!@replacement.nil? && line.gsub(@search, @replacement) == line)
+      occurrences << Occurrence.new(filename, lineno, match + 1, line)
     end
     occurrences
   end

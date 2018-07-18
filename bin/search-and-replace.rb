@@ -30,10 +30,12 @@ op.parse!
 command_opts['config'] ||= '.pre-commit-search-and-replace.yaml'
 
 if ARGV.length.zero?
-  STDERR.write('No files to search supplied as arguments!')
+  STDERR.write("No files to search supplied as arguments!\n")
   puts "\n#{op.help}"
   exit(1)
 end
+
+ARGV.reject! { |f| File.absolute_path(f) == File.absolute_path(command_opts['config']) }
 
 configs = if command_opts['search']
             [command_opts]
