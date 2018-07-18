@@ -1,0 +1,9 @@
+There are so many matches in this
+file.
+
+Here's one: foobar
+
+Here's another but indirect: Bad     Regexp
+And another of the same: BadRegexp
+
+How about InsensitiveRegexp?

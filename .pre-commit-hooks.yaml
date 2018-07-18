@@ -1,0 +1,6 @@
+- id: search-and-replace
+  name: Search and replace strings
+  description: Search and replace strings
+  entry: bin/search-and-replace.rb
+  language: script
+  pass_filenames: true

@@ -1,0 +1,6 @@
+- search: foobar
+  replacement: fooBAZ
+  description: BAZ preferred over bar
+- search: /Bad\s*Regexp/
+- search: /InsensitiveREGEXP/
+  insensitive: true
