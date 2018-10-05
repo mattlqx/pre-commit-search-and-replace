@@ -4,3 +4,5 @@
   entry: bin/search-and-replace.rb
   language: script
   pass_filenames: true
+  exclude_types:
+    - binary
