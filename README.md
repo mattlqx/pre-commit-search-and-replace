@@ -17,7 +17,7 @@ The config file name can be changed by passing a `--config PATH` argument to the
 Example pre-commit config:
 
     - repo: https://github.com/mattlqx/pre-commit-search-and-replace
-      rev: v1.0.1
+      rev: v1.0.2
       hooks:
       - id: search-and-replace
 
