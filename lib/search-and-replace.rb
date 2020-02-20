@@ -22,7 +22,7 @@ class SearchAndReplace
 
   # Determines if string is regexp and converts to object if so
   def pattern(string, options: nil)
-    %r{^/.*/$}.match?(string) ? Regexp.new(string[1..-2], options) : string
+    !%r{^/.*/$}.match(string).nil? ? Regexp.new(string[1..-2], options) : string
   end
 
   def parse_files
