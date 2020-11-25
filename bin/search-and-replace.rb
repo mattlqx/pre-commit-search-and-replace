@@ -30,7 +30,7 @@ op.parse!
 command_opts['config'] ||= '.pre-commit-search-and-replace.yaml'
 
 if ARGV.length.zero?
-  STDERR.write("No files to search supplied as arguments!\n")
+  $stderr.write("No files to search supplied as arguments!\n")
   puts "\n#{op.help}"
   exit(1)
 end
@@ -43,12 +43,12 @@ configs = if command_opts['search']
             begin
               YAML.safe_load(IO.read(command_opts['config']))
             rescue Errno::ENOENT
-              STDERR.write("Unable to open #{command_opts['config']} and no search argument specified.\n")
+              $stderr.write("Unable to open #{command_opts['config']} and no search argument specified.\n")
               puts "\n#{op.help}"
               exit(1)
             end
           end
-file_moves = []
+files_fixed = []
 exit_status = 0
 
 # Process each entry in the config against all arguments (filenames)
@@ -57,23 +57,26 @@ configs.each_with_index do |entry, i|
   sar = SearchAndReplace.from_config(ARGV, entry)
   sar.parse_files.each do |result|
     next if result.empty?
+
     puts "==== Found #{result.length} occurrences of \"#{entry['description'] || entry['search']}\" in " \
          "#{result.first.file}:\n\n"
     puts result.occurrences.map(&:to_s).join("\n")
-    file_moves << [result.replacement_file_path, result.first.file] unless entry['replacement'].nil?
+    next if entry['replacement'].nil?
+
+    files_fixed << result.first.file
     exit_status = 1
+
+    src = result.replacement_file_path
+    dest = result.first.file
+
+    unless RUBY_PLATFORM =~ /mswin|mingw|windows/
+      stat = File.stat(dest)
+      FileUtils.chown(stat.uid, stat.gid, src)
+      FileUtils.chmod(stat.mode, src)
+    end
+    FileUtils.mv(src, dest)
   end
 end
 
-# Do the actual fixing by moving the tempfile with replacements to the original path
-file_moves.each do |pair|
-  src, dest = pair
-  unless RUBY_PLATFORM =~ /mswin|mingw|windows/
-    stat = File.stat(dest)
-    FileUtils.chown(stat.uid, stat.gid, src)
-    FileUtils.chmod(stat.mode, src)
-  end
-  puts "Fixing #{dest}"
-  FileUtils.mv(src, dest)
-end
+files_fixed.uniq.each { |dest| puts "Fixed #{dest}" }
 exit(exit_status)
