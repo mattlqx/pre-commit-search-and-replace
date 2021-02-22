@@ -61,10 +61,10 @@ configs.each_with_index do |entry, i|
     puts "==== Found #{result.length} occurrences of \"#{entry['description'] || entry['search']}\" in " \
          "#{result.first.file}:\n\n"
     puts result.occurrences.map(&:to_s).join("\n")
+    exit_status = 1
     next if entry['replacement'].nil?
 
     files_fixed << result.first.file
-    exit_status = 1
 
     src = result.replacement_file_path
     dest = result.first.file
