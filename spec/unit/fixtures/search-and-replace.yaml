@@ -4,6 +4,8 @@
 - search: /Bad\s*Regexp/
 - search: /InsensitiveREGEXP/
   insensitive: true
+- search: There are SO many
+  insensitive: true
 - search: /foo\s*bar/
   replacement: foobar
   description: This shouldn't be a hit because the replacement wouldn't change the line

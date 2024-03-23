@@ -1,37 +1,41 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v1.3.0
-  hooks:
-  # Git state
-  - id: check-merge-conflict
-    stages: [commit]
-  - id: check-added-large-files
-    stages: [commit]
-  # Sensitive information
-  - id: detect-private-key
-    stages: [commit]
-  - id: detect-aws-credentials
-    stages: [commit]
-  # Generic file state
-  - id: trailing-whitespace
-    stages: [commit]
-  - id: mixed-line-ending
-    stages: [commit]
-  - id: end-of-file-fixer
-    stages: [commit]
-  - id: check-executables-have-shebangs
-    stages: [commit]
-  # Language syntax/formatting
-  - id: check-yaml
-    stages: [commit]
-- repo: https://github.com/mattlqx/pre-commit-ruby
-  rev: v1.1.0
-  hooks:
-  # Ruby conformance
-  - id: rubocop
-    exclude: Gemfile.lock
-    stages: [commit]
-- repo: https://github.com/mattlqx/pre-commit-sign
-  rev: v1.1.3
-  hooks:
-  - id: sign-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Git state
+      - id: check-merge-conflict
+        stages: [commit]
+      - id: check-added-large-files
+        stages: [commit]
+      # Sensitive information
+      - id: detect-private-key
+        stages: [commit]
+      - id: detect-aws-credentials
+        args:
+          - --allow-missing-credentials
+        stages: [commit]
+      # Generic file state
+      - id: trailing-whitespace
+        stages: [commit]
+      - id: mixed-line-ending
+        stages: [commit]
+      - id: end-of-file-fixer
+        stages: [commit]
+      - id: check-executables-have-shebangs
+        stages: [commit]
+      # Language syntax/formatting
+      - id: check-yaml
+        stages: [commit]
+  - repo: https://github.com/mattlqx/pre-commit-ruby
+    rev: v1.3.5
+    hooks:
+      # Ruby conformance
+      - id: rubocop
+        args:
+          - --fix
+        exclude: Gemfile.lock
+        stages: [commit]
+  - repo: https://github.com/mattlqx/pre-commit-sign
+    rev: v1.2.0
+    hooks:
+      - id: sign-commit
