@@ -19,7 +19,8 @@ describe SearchAndReplace do
         'foobar' => yaml[0],
         'bad regexp' => yaml[1],
         'insensitive' => yaml[2],
-        'regex foobar' => yaml[3]
+        'insensitive string' => yaml[3],
+        'regex foobar' => yaml[4]
       }
     end
 
@@ -70,6 +71,13 @@ describe SearchAndReplace do
       expect(sar.call(configs['insensitive']).parse_files[1].empty?).to be true
     end
 
+    it 'has correct number of occurrences for foobar config' do
+      expect(sar.call(configs['insensitive string']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['insensitive string']).parse_files[0].length).to eq(1)
+      expect(sar.call(configs['insensitive string']).parse_files[1]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['insensitive string']).parse_files[1].empty?).to be true
+    end
+
     it 'does not register an occurrence if replacement would not change line' do
       expect(sar.call(configs['regex foobar']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['regex foobar']).parse_files[0].length).to eq(0)
@@ -77,9 +85,9 @@ describe SearchAndReplace do
 
     it 'prints an occurrence correctly' do
       expect(sar.call(configs['foobar']).parse_files[0].first.to_s).to eq \
-        "#{__dir__}/fixtures/bad_content.txt, line 4, col 13:\n" \
-        "    Here's one: foobar\n" \
-        '                ^'
+        "#{__dir__}/fixtures/bad_content.txt, line 4, col 13:\n    " \
+        "Here's one: foobar\n                " \
+        '^'
     end
   end
 
@@ -110,6 +118,15 @@ describe SearchAndReplace do
     context 'with a bad file' do
       let(:run_files) { [bad_tempfile] }
       let(:args) { '-s foobar' }
+
+      it 'exits with error' do
+        expect(sar.exitstatus).to eq(1)
+      end
+    end
+
+    context 'with a bad file and insensitive search' do
+      let(:run_files) { [bad_tempfile] }
+      let(:args) { '-s "There are SO many" -i' }
 
       it 'exits with error' do
         expect(sar.exitstatus).to eq(1)

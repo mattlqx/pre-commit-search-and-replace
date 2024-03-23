@@ -11,6 +11,7 @@ class SearchAndReplace
   def initialize(files, search, search_opts: nil, replacement: nil)
     @files = files
     @search = pattern(search, options: search_opts)
+    @search_opts = search_opts
     @replacement = replacement
     @tempfiles = []
   end
@@ -55,10 +56,15 @@ class SearchAndReplace
     offset = 0
     match = false
     until match.nil?
-      match = line.index(@search, offset)
+      if @search_opts & Regexp::IGNORECASE == Regexp::IGNORECASE && @search.is_a?(String)
+        match = line.downcase.index(@search.downcase, offset)
+      else
+        match = line.index(@search, offset)
+      end
       offset = match + 2 if match.is_a?(Integer)
       # Don't log a match if there isn't one or if the replacement on a regex would yield no change
       next if !match.is_a?(Integer) || (!@replacement.nil? && line.gsub(@search, @replacement) == line)
+
       occurrences << Occurrence.new(filename, lineno, match + 1, line)
     end
     occurrences
@@ -81,7 +87,7 @@ class SearchAndReplace
     # :nocov:
     def to_s
       "file: #{filename}, search: '#{search.search}', replacement: '#{search.replacement || 'nil'}', " \
-      "count: #{occurences.length}"
+        "count: #{occurences.length}"
     end
 
     def method_missing(method, *args)
@@ -113,9 +119,9 @@ class SearchAndReplace
     end
 
     def to_s
-      "#{file}, line #{lineno}, col #{col}:\n" \
-      "    #{context.tr("\t", ' ').chomp}\n" \
-      "    #{' ' * (col - 1)}^"
+      "#{file}, line #{lineno}, col #{col}:\n    " \
+        "#{context.tr("\t", ' ').chomp}\n    " \
+        "#{' ' * (col - 1)}^"
     end
   end
 end

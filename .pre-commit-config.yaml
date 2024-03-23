@@ -11,6 +11,8 @@ repos:
       - id: detect-private-key
         stages: [commit]
       - id: detect-aws-credentials
+        args:
+          - --allow-missing-credentials
         stages: [commit]
       # Generic file state
       - id: trailing-whitespace
@@ -29,9 +31,11 @@ repos:
     hooks:
       # Ruby conformance
       - id: rubocop
+        args:
+          - --fix
         exclude: Gemfile.lock
         stages: [commit]
   - repo: https://github.com/mattlqx/pre-commit-sign
-    rev: 437bd3107ccdd16ccf915ed4800c638cfbf0849c
+    rev: v1.2.0
     hooks:
       - id: sign-commit
