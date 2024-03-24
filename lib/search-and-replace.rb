@@ -56,7 +56,9 @@ class SearchAndReplace
     offset = 0
     match = false
     until match.nil?
-      if @search_opts & Regexp::IGNORECASE == Regexp::IGNORECASE && @search.is_a?(String)
+      if line.index(%r{(//|#)\s*no-search-replace})
+        match = nil
+      elsif @search_opts & Regexp::IGNORECASE == Regexp::IGNORECASE && @search.is_a?(String)
         match = line.downcase.index(@search.downcase, offset)
       else
         match = line.index(@search, offset)
@@ -99,7 +101,7 @@ class SearchAndReplace
     end
 
     def respond_to_missing?(method, *_args)
-      @occurrences.respond_to?(method) || respond_to?(method)
+      @occurrences.respond_to?(method)
     end
     # :nocov:
   end
