@@ -14,10 +14,14 @@ By default, a YAML config file is loaded at `.pre-commit-search-and-replace.yaml
 
 The config file name can be changed by passing a `--config PATH` argument to the hook in the pre-commit config. A single search and replacement can be specified with `--search STRING` and `--replacement STRING` arguments as well instead of using a config file.
 
+Other command line args:
+- `--[no-]write` - Whether to write replacements to the file.
+- `--[no-]color` - Whether to have output be colorized.
+
 Example pre-commit config:
 
     - repo: https://github.com/mattlqx/pre-commit-search-and-replace
-      rev: v1.0.5
+      rev: v1.1.0
       hooks:
       - id: search-and-replace
 
@@ -29,6 +33,10 @@ Example search-and-replace config:
       insensitive: true
       replacement: FOOBAR
     - search: JustFailIfThisStringIsFound
+
+Output can look something like this:
+
+![example output](doc/example.png)
 
 Specific lines in the committed files may be exempt from consideration by commenting as appropriate to the end of the line:
 
