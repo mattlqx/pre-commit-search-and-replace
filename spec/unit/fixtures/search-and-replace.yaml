@@ -9,3 +9,7 @@
 - search: /foo\s*bar/
   replacement: foobar
   description: This shouldn't be a hit because the replacement wouldn't change the line
+- search: some special text
+  description: this should be ignored
+- search: some very special text
+  description: this should also be ignored

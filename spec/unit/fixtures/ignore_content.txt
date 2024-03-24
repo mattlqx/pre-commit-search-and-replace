@@ -1,0 +1,5 @@
+This is some text
+
+This is some special text  # no-search-replace
+
+This is some very special text with different comment style  // no-search-replace

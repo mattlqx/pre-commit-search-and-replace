@@ -29,3 +29,13 @@ Example search-and-replace config:
       insensitive: true
       replacement: FOOBAR
     - search: JustFailIfThisStringIsFound
+
+Specific lines in the committed files may be exempt from consideration by commenting as appropriate to the end of the line:
+
+```
+# no-search-replace
+```
+or
+```
+// no-search-replace
+```

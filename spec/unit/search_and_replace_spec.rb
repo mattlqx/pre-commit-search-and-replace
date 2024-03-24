@@ -9,7 +9,13 @@ require 'tempfile'
 require 'yaml'
 
 describe SearchAndReplace do
-  let(:files) { %W[#{__dir__}/fixtures/bad_content.txt #{__dir__}/fixtures/good_content.txt] }
+  let(:files) do
+    %W(
+      #{__dir__}/fixtures/bad_content.txt
+      #{__dir__}/fixtures/good_content.txt
+      #{__dir__}/fixtures/ignore_content.txt
+    )
+  end
 
   context 'when loading a config' do
     let(:configs) do
@@ -20,7 +26,9 @@ describe SearchAndReplace do
         'bad regexp' => yaml[1],
         'insensitive' => yaml[2],
         'insensitive string' => yaml[3],
-        'regex foobar' => yaml[4]
+        'regex foobar' => yaml[4],
+        'ignored hash comment' => yaml[5],
+        'ignored double slash comment' => yaml[6],
       }
     end
 
@@ -64,14 +72,14 @@ describe SearchAndReplace do
       expect(sar.call(configs['bad regexp']).parse_files[1].empty?).to be true
     end
 
-    it 'has correct number of occurrences for foobar config' do
+    it 'has correct number of occurrences for insensitive config' do
       expect(sar.call(configs['insensitive']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['insensitive']).parse_files[0].length).to eq(1)
       expect(sar.call(configs['insensitive']).parse_files[1]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['insensitive']).parse_files[1].empty?).to be true
     end
 
-    it 'has correct number of occurrences for foobar config' do
+    it 'has correct number of occurrences for insensitive string config' do
       expect(sar.call(configs['insensitive string']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['insensitive string']).parse_files[0].length).to eq(1)
       expect(sar.call(configs['insensitive string']).parse_files[1]).to be_a(SearchAndReplace::FileMatches)
@@ -89,6 +97,16 @@ describe SearchAndReplace do
         "Here's one: foobar\n                " \
         '^'
     end
+
+    it 'does not match an ignored hash comment' do
+      expect(sar.call(configs['ignored hash comment']).parse_files[2]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['ignored hash comment']).parse_files[2].length).to eq(0)
+    end
+
+    it 'does not match an ignored double slash comment' do
+      expect(sar.call(configs['ignored double slash comment']).parse_files[2]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['ignored double slash comment']).parse_files[2].length).to eq(0)
+    end
   end
 
   context 'when run from the command-line' do
@@ -98,12 +116,15 @@ describe SearchAndReplace do
     end
     let(:bad_file) { files[0] }
     let(:good_file) { files[1] }
+    let(:ignore_file) { files[2] }
     let(:bad_tempfile) { Tempfile.new('rspec-sar') }
     let(:good_tempfile) { Tempfile.new('rspec-sar') }
+    let(:ignore_tempfile) { Tempfile.new('rspec-sar') }
 
     before do
       FileUtils.cp(bad_file, bad_tempfile.path)
       FileUtils.cp(good_file, good_tempfile.path)
+      FileUtils.cp(ignore_file, ignore_tempfile.path)
     end
 
     context 'with a good file' do
@@ -146,6 +167,26 @@ describe SearchAndReplace do
         new_content = IO.read(run_files[0].path)
         expect(new_content.index('foobar')).to be_nil
         expect(new_content.index('youbar')).to be >= 0
+      end
+    end
+
+    context 'with a file with ignored content' do
+      let(:run_files) { [ignore_tempfile] }
+
+      context 'in a hash comment' do
+        let(:args) { '-s "some special text"' }
+
+        it 'exits with no error' do
+          expect(sar.exitstatus).to eq(0)
+        end
+      end
+
+      context 'in a double slash comment' do
+        let(:args) { '-s "some very special text"' }
+
+        it 'exits with no error' do
+          expect(sar.exitstatus).to eq(0)
+        end
       end
     end
   end
