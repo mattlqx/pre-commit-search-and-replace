@@ -35,6 +35,8 @@ repos:
           - --fix
         exclude: Gemfile.lock
         stages: [commit]
+      - id: rspec
+        stages: [commit]
   - repo: https://github.com/mattlqx/pre-commit-sign
     rev: v1.2.0
     hooks:
