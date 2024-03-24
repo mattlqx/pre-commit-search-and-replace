@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rainbow'
 require 'tempfile'
 
 # A set of files represented as a collection that can each be parsed for a search string or regexp and optionally,
@@ -17,13 +18,14 @@ class SearchAndReplace
   end
 
   def self.from_config(files, config)
-    opts = ((config['insensitive'] && Regexp::IGNORECASE) || 0) | ((config['extended'] && Regexp::EXTENDED) || 0)
-    new(files, config['search'], search_opts: opts, replacement: config['replacement'])
+    config.transform_keys!(&:to_sym)
+    opts = ((config[:insensitive] && Regexp::IGNORECASE) || 0) | ((config[:extended] && Regexp::EXTENDED) || 0)
+    new(files, config[:search], search_opts: opts, replacement: config[:replacement])
   end
 
   # Determines if string is regexp and converts to object if so
   def pattern(string, options: nil)
-    !%r{^/.*/$}.match(string).nil? ? Regexp.new(string[1..-2], options) : string
+    !%r{^/.*/$}.match(string).nil? ? Regexp.new("(?<sar_all>#{string[1..-2]})", options) : string
   end
 
   def parse_files
@@ -60,16 +62,32 @@ class SearchAndReplace
         match = nil
       elsif @search_opts & Regexp::IGNORECASE == Regexp::IGNORECASE && @search.is_a?(String)
         match = line.downcase.index(@search.downcase, offset)
-      else
+      elsif @search.is_a?(String)
         match = line.index(@search, offset)
+      else
+        match = @search.match(line, offset)
       end
-      offset = match + 2 if match.is_a?(Integer)
-      # Don't log a match if there isn't one or if the replacement on a regex would yield no change
-      next if !match.is_a?(Integer) || (!@replacement.nil? && line.gsub(@search, @replacement) == line)
 
-      occurrences << Occurrence.new(filename, lineno, match + 1, line)
+      if match.is_a?(Integer)
+        offset = match + 2
+      elsif match.is_a?(MatchData)
+        offset = match.begin(:sar_all) + 2
+      end
+
+      # Don't log a match if there isn't one or if the replacement on a regex would yield no change
+      next if match.nil? || (!@replacement.nil? && line.gsub(@search, @replacement) == line)
+
+      occurrences << Occurrence.new(filename, lineno, offset - 1, length_from_match(match), line, @replacement)
     end
     occurrences
+  end
+
+  def length_from_match(match)
+    if match.is_a?(Integer)
+      @search.length
+    elsif match.is_a?(MatchData)
+      match.match_length(:sar_all)
+    end
   end
 
   # A collection of occurrences in a file
@@ -111,19 +129,35 @@ class SearchAndReplace
     attr_accessor :file
     attr_accessor :lineno
     attr_accessor :col
+    attr_accessor :length
     attr_accessor :context
 
-    def initialize(file, lineno, col, context)
+    def initialize(file, lineno, col, length, context, replacement)
       @file = file
       @lineno = lineno
       @col = col
+      @length = length
       @context = context
+      @replacement = replacement
     end
 
     def to_s
-      "#{file}, line #{lineno}, col #{col}:\n    " \
-        "#{context.tr("\t", ' ').chomp}\n    " \
-        "#{' ' * (col - 1)}^"
+      str = "#{Rainbow(file).cyan}, line #{lineno}, col #{col}:\n    " \
+            "#{context.tr("\t", ' ').chomp}\n    " \
+            "#{' ' * (col - 1)}#{Rainbow('^' * @length).red}\n"
+
+      if @replacement
+        replaced_line = @context.split(//)
+        (@col - 1...col - 1 + @length).each do |i|
+          replaced_line.delete_at(@col - 1)
+        end
+        replaced_line.insert(@col - 1, Rainbow(@replacement).green.split(//))
+        replaced_line = replaced_line.join('')
+
+        str += "After replacement:\n    " \
+               "#{replaced_line.tr("\t", ' ').chomp}\n"
+      end
+      str
     end
   end
 end

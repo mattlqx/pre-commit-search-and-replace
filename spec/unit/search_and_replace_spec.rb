@@ -5,6 +5,7 @@ require './lib/search-and-replace'
 
 require 'fileutils'
 require 'mixlib/shellout'
+require 'rainbow'
 require 'tempfile'
 require 'yaml'
 
@@ -46,14 +47,14 @@ describe SearchAndReplace do
 
     it 'contains all bad regexp config entries' do
       expect(sar.call(configs['bad regexp']).search).to be_a(Regexp)
-      expect(sar.call(configs['bad regexp']).search).to eq(/Bad\s*Regexp/)
+      expect(sar.call(configs['bad regexp']).search).to eq(/(?<sar_all>Bad\s*Regexp)/)
       expect(sar.call(configs['bad regexp']).search.options).to eq(0)
       expect(sar.call(configs['bad regexp']).replacement).to be_nil
     end
 
     it 'contains all insensitive config entries' do
       expect(sar.call(configs['insensitive']).search).to be_a(Regexp)
-      expect(sar.call(configs['insensitive']).search).to eq(/InsensitiveREGEXP/i)
+      expect(sar.call(configs['insensitive']).search).to eq(/(?<sar_all>InsensitiveREGEXP)/i)
       expect(sar.call(configs['insensitive']).search.options).to eq(Regexp::IGNORECASE)
       expect(sar.call(configs['insensitive']).replacement).to be_nil
     end
@@ -93,9 +94,11 @@ describe SearchAndReplace do
 
     it 'prints an occurrence correctly' do
       expect(sar.call(configs['foobar']).parse_files[0].first.to_s).to eq \
-        "#{__dir__}/fixtures/bad_content.txt, line 4, col 13:\n    " \
-        "Here's one: foobar\n                " \
-        '^'
+        Rainbow("#{__dir__}/fixtures/bad_content.txt").cyan + ", line 4, col 13:\n    " +
+        "Here's one: foobar\n                " +
+        Rainbow('^^^^^^').red +
+        "\nAfter replacement:\n" +
+        "    Here's one: #{Rainbow('fooBAZ').green}\n"
     end
 
     it 'does not match an ignored hash comment' do
@@ -167,6 +170,22 @@ describe SearchAndReplace do
         new_content = IO.read(run_files[0].path)
         expect(new_content.index('foobar')).to be_nil
         expect(new_content.index('youbar')).to be >= 0
+      end
+    end
+
+    context 'with a bad file and replacement doesn\'t write disabled' do
+      let(:run_files) { [bad_tempfile] }
+      let(:args) { '-s foobar -r youbar --no-write' }
+
+      it 'exits with error' do
+        expect(sar.exitstatus).to eq(1)
+      end
+
+      it 'does not replace string with replacement' do
+        expect(sar.exitstatus).to eq(1)
+        new_content = IO.read(run_files[0].path)
+        expect(new_content.index('youbar')).to be_nil
+        expect(new_content.index('foobar')).to be >= 0
       end
     end
 
