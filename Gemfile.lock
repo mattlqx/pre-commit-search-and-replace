@@ -59,10 +59,10 @@ PLATFORMS
 
 DEPENDENCIES
   mixlib-shellout (~> 3.2)
-  rainbow
+  rainbow (~> 3.1)
   rspec
   rubocop (~> 1.62)
   simplecov
 
 BUNDLED WITH
-   2.5.7
+   2.5.10
