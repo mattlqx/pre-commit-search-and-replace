@@ -58,7 +58,7 @@ class SearchAndReplace
     offset = 0
     match = false
     until match.nil?
-      if line.index(%r{(//|#)\s*no-search-replace})
+      if line.index(%r{(//|//*|#|<!--)\s*no-search-replace})
         match = nil
       elsif @search_opts & Regexp::IGNORECASE == Regexp::IGNORECASE && @search.is_a?(String)
         match = line.downcase.index(@search.downcase, offset)
