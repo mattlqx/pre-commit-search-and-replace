@@ -21,7 +21,7 @@ Other command line args:
 Example pre-commit config:
 
     - repo: https://github.com/mattlqx/pre-commit-search-and-replace
-      rev: v1.1.2
+      rev: v1.1.3
       hooks:
       - id: search-and-replace
 
@@ -42,8 +42,14 @@ Specific lines in the committed files may be exempt from consideration by commen
 
 ```
 # no-search-replace
-```
-or
-```
+
 // no-search-replace
+```
+
+Or these comment styles that support being anywhere in the line:
+
+```
+/* no-search-replace */
+
+<!-- no-search-replace -->
 ```

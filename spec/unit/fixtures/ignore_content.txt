@@ -3,3 +3,7 @@ This is some text
 This is some special text  # no-search-replace
 
 This is some very special text with different comment style  // no-search-replace
+
+This /* no-search-replace */ has a comment in the middle 
+
+This is an XML style comment <!-- no-search-replace -->

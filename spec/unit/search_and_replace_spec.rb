@@ -114,7 +114,7 @@ describe SearchAndReplace do
 
   context 'when run from the command-line' do
     let(:sar) do
-      cmd = "#{__dir__}/../../bin/search-and-replace.rb #{args} #{run_files.map(&:path).join(' ')}"
+      cmd = "#{__dir__}/../../bin/search-and-replace #{args} #{run_files.map(&:path).join(' ')}"
       Mixlib::ShellOut.new(cmd).run_command
     end
     let(:bad_file) { files[0] }
@@ -202,6 +202,22 @@ describe SearchAndReplace do
 
       context 'in a double slash comment' do
         let(:args) { '-s "some very special text"' }
+
+        it 'exits with no error' do
+          expect(sar.exitstatus).to eq(0)
+        end
+      end
+
+      context 'in a multi-line C comment' do
+        let(:args) { '-s "has a comment in the middle"' }
+
+        it 'exits with no error' do
+          expect(sar.exitstatus).to eq(0)
+        end
+      end
+
+      context 'in an XML comment' do
+        let(:args) { '-s "an XML style comment"' }
 
         it 'exits with no error' do
           expect(sar.exitstatus).to eq(0)
