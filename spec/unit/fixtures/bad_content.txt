@@ -7,3 +7,11 @@ Here's another but indirect: Bad     Regexp
 And another of the same: BadRegexp
 
 How about InsensitiveRegexp?
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Some brief desc
+/// @param some_param_P1 [in] First param desc
+/// @param  second  [out] Second param desc
+/// \param  OTHER[out]  Yet another param desc! @param over [in] here too.
+void foo(const some_param_P1 p1, OTHER other);

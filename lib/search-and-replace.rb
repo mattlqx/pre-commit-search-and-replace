@@ -86,7 +86,7 @@ class SearchAndReplace
     if match.is_a?(Integer)
       @search.length
     elsif match.is_a?(MatchData)
-      match.match_length(:sar_all)
+      match.length()
     end
   end
 
