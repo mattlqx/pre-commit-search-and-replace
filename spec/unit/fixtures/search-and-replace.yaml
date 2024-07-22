@@ -13,3 +13,6 @@
   description: this should be ignored
 - search: some very special text
   description: this should also be ignored
+- search: /( *\/\/\/ +([@\\]param)) +(\w+) *(\[(in|out|in, *out)\])?/
+  replacement: \1\4 \3
+  description: "Fix malformed Doxygen param in/out syntax"
