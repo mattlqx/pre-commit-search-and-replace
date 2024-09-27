@@ -30,6 +30,8 @@ describe SearchAndReplace do
         'regex foobar' => yaml[4],
         'ignored hash comment' => yaml[5],
         'ignored double slash comment' => yaml[6],
+        'doxygen' => yaml[7],
+        'named capture' => yaml[8],
       }
     end
 
@@ -47,14 +49,14 @@ describe SearchAndReplace do
 
     it 'contains all bad regexp config entries' do
       expect(sar.call(configs['bad regexp']).search).to be_a(Regexp)
-      expect(sar.call(configs['bad regexp']).search).to eq(/(?<sar_all>Bad\s*Regexp)/)
+      expect(sar.call(configs['bad regexp']).search).to eq(/Bad\s*Regexp/)
       expect(sar.call(configs['bad regexp']).search.options).to eq(0)
       expect(sar.call(configs['bad regexp']).replacement).to be_nil
     end
 
     it 'contains all insensitive config entries' do
       expect(sar.call(configs['insensitive']).search).to be_a(Regexp)
-      expect(sar.call(configs['insensitive']).search).to eq(/(?<sar_all>InsensitiveREGEXP)/i)
+      expect(sar.call(configs['insensitive']).search).to eq(/InsensitiveREGEXP/i)
       expect(sar.call(configs['insensitive']).search.options).to eq(Regexp::IGNORECASE)
       expect(sar.call(configs['insensitive']).replacement).to be_nil
     end
@@ -109,6 +111,18 @@ describe SearchAndReplace do
     it 'does not match an ignored double slash comment' do
       expect(sar.call(configs['ignored double slash comment']).parse_files[2]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['ignored double slash comment']).parse_files[2].length).to eq(0)
+    end
+
+    it 'replaces back-references' do
+      expect(sar.call(configs['doxygen']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['doxygen']).parse_files[0].length).to eq(3)
+      expect(sar.call(configs['doxygen']).parse_files[0].occurrences[0].replacement).to eq("/// @param[in] some_param_P1")
+    end
+
+    it 'replaces named-capture back-references' do
+      expect(sar.call(configs['named capture']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['named capture']).parse_files[0].length).to eq(1)
+      expect(sar.call(configs['named capture']).parse_files[0].occurrences[0].replacement).to eq("It is foobar")
     end
   end
 
@@ -186,6 +200,19 @@ describe SearchAndReplace do
         new_content = IO.read(run_files[0].path)
         expect(new_content.index('youbar')).to be_nil
         expect(new_content.index('foobar')).to be >= 0
+      end
+    end
+
+    context 'with a config' do
+      let(:run_files) { [bad_tempfile] }
+      let(:args) { "-c #{__dir__}/fixtures/search-and-replace.yaml" }
+
+      it 'substitutes matches' do
+        expect(sar.exitstatus).to eq(1)
+        new_content = IO.read(run_files[0].path)
+        expect(new_content.index('@param  second')).to be_nil
+        expect(new_content.index('\1 ')).to be_nil
+        expect(new_content.index('@param[in]')).to be >= 0
       end
     end
 
