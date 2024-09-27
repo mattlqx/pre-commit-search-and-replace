@@ -16,3 +16,6 @@
 - search: /( *\/\/\/ +([@\\]param)) +(\w+) *(\[(in|out|in, *out)\])?/
   replacement: \1\4 \3
   description: "Fix malformed Doxygen param in/out syntax"
+- search: "/Here's one: (?<what>[a-z]+)/"
+  replacement: It is \k<what>
+  description: Named capture replacement

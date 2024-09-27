@@ -25,7 +25,7 @@ class SearchAndReplace
 
   # Determines if string is regexp and converts to object if so
   def pattern(string, options: nil)
-    !%r{^/.*/$}.match(string).nil? ? Regexp.new("(?<sar_all>#{string[1..-2]})", options) : string
+    !%r{^/.*/$}.match(string).nil? ? Regexp.new("#{string[1..-2]}", options) : string
   end
 
   def parse_files
@@ -38,12 +38,14 @@ class SearchAndReplace
     all_occurrences = []
     file = IO.open(IO.sysopen(filename, 'r'))
     tempfile = Tempfile.new('pre-commit-search') unless @replacement.nil?
+
     until file.eof?
       line = file.gets
       occurrences = search_line(filename, file.lineno, line)
       all_occurrences += occurrences
       tempfile&.write(occurrences.empty? ? line : line.gsub(@search, @replacement))
     end
+
     unless tempfile.nil?
       tempfile.close
       @tempfiles << tempfile # Hold on to a reference so it's not garbage collected yet
@@ -57,6 +59,7 @@ class SearchAndReplace
     occurrences = []
     offset = 0
     match = false
+
     until match.nil?
       if line.index(%r{(//|/*|#|<!--)\s*no-search-replace})
         match = nil
@@ -68,16 +71,23 @@ class SearchAndReplace
         match = @search.match(line, offset)
       end
 
+      actual_replacement = @replacement.dup
       if match.is_a?(Integer)
         offset = match + 2
       elsif match.is_a?(MatchData)
-        offset = match.begin(:sar_all) + 2
+        offset = match.begin(0) + 2
+        match.captures.each_with_index do |m, idx|
+          actual_replacement.gsub!("\\#{idx+1}", m)
+        end
+        match.named_captures.each do |name, m|
+          actual_replacement.gsub!("\\k<#{name}>", m)
+        end
       end
 
       # Don't log a match if there isn't one or if the replacement on a regex would yield no change
       next if match.nil? || (!@replacement.nil? && line.gsub(@search, @replacement) == line)
 
-      occurrences << Occurrence.new(filename, lineno, offset - 1, length_from_match(match), line, @replacement)
+      occurrences << Occurrence.new(filename, lineno, offset - 1, length_from_match(match), line, actual_replacement)
     end
     occurrences
   end
@@ -86,7 +96,7 @@ class SearchAndReplace
     if match.is_a?(Integer)
       @search.length
     elsif match.is_a?(MatchData)
-      match.length()
+      match[0].length
     end
   end
 
@@ -131,6 +141,7 @@ class SearchAndReplace
     attr_accessor :col
     attr_accessor :length
     attr_accessor :context
+    attr_accessor :replacement
 
     def initialize(file, lineno, col, length, context, replacement)
       @file = file

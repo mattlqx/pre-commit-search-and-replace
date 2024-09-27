@@ -7,7 +7,7 @@ This is a plugin for [pre-commit](https://pre-commit.com) that will run search a
 By default, a YAML config file is loaded at `.pre-commit-search-and-replace.yaml` in the root of the repo. This config file should be a list of entries specifying any of the following keys:
 
 - `search`: (required) the string or regexp to search for. To use a regexp, start and end with slashes. e.g. `/^mypattern/`
-- `replacement`: the string to replace matched strings with. If specified, files will "fixed". Match groups can be referenced here (e.g. `\1`)
+- `replacement`: the string to replace matched strings with. If specified, files will "fixed". Match groups can be referenced here (e.g. `\1` or `\k<foo>`)
 - `insensitive`: boolean whether the regexp should be case-insensitive. default: `false`
 - `extended`: boolean whether the regexp should be extended. default: `false`
 - `description`: short text description of purpose of the entry.
