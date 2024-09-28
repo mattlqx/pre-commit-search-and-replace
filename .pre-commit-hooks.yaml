@@ -1,10 +1,9 @@
-default_language_version:
-  ruby: 2.2.7
 - id: search-and-replace
   name: Search and replace strings
   description: Search and replace strings
   entry: search-and-replace
   language: ruby
+  language_version: 2.2.7
   pass_filenames: true
   exclude_types:
     - binary
