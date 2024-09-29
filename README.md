@@ -21,7 +21,7 @@ Other command line args:
 Example pre-commit config:
 
     - repo: https://github.com/mattlqx/pre-commit-search-and-replace
-      rev: v1.1.4
+      rev: v1.1.5
       hooks:
       - id: search-and-replace
 
