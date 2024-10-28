@@ -42,6 +42,6 @@ repos:
     hooks:
       - id: sign-commit
   - repo: .
-    rev: v1.1.7
+    rev: v1.1.8
     hooks:
       - id: search-and-replace
