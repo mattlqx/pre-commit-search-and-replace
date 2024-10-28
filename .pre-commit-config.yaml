@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       # Git state
       - id: check-merge-conflict
@@ -27,7 +27,7 @@ repos:
       - id: check-yaml
         stages: [commit]
   - repo: https://github.com/mattlqx/pre-commit-ruby
-    rev: v1.3.5
+    rev: v1.3.6
     hooks:
       # Ruby conformance
       - id: rubocop
@@ -42,6 +42,6 @@ repos:
     hooks:
       - id: sign-commit
   - repo: .
-    rev: main
+    rev: v1.1.7
     hooks:
       - id: search-and-replace

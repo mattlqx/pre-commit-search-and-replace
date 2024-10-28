@@ -3,7 +3,7 @@
   description: Search and replace strings
   entry: search-and-replace
   language: ruby
-  language_version: "3.2"
+  language_version: "3.2.0"
   pass_filenames: true
   exclude_types:
     - binary
