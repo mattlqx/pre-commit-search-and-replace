@@ -76,11 +76,14 @@ class SearchAndReplace
         offset = match + 2
       elsif match.is_a?(MatchData)
         offset = match.begin(0) + 2
-        match.captures.each_with_index do |m, idx|
-          actual_replacement.gsub!("\\#{idx+1}", m)
-        end
-        match.named_captures.each do |name, m|
-          actual_replacement.gsub!("\\k<#{name}>", m)
+
+        unless actual_replacement.nil?
+            match.captures.each_with_index do |m, idx|
+              actual_replacement.gsub!("\\#{idx+1}", m)
+            end
+            match.named_captures.each do |name, m|
+              actual_replacement.gsub!("\\k<#{name}>", m)
+            end
         end
       end
 
