@@ -15,3 +15,6 @@ How about InsensitiveRegexp?
 /// @param  second  [out] Second param desc
 /// \param  OTHER[out]  Yet another param desc! @param over [in] here too.
 void foo(const some_param_P1 p1, OTHER other);
+
+
+This is FORBIDDEN text.
