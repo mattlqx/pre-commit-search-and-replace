@@ -4,28 +4,28 @@ repos:
     hooks:
       # Git state
       - id: check-merge-conflict
-        stages: [commit]
+        stages: [pre-commit]
       - id: check-added-large-files
-        stages: [commit]
+        stages: [pre-commit]
       # Sensitive information
       - id: detect-private-key
-        stages: [commit]
+        stages: [pre-commit]
       - id: detect-aws-credentials
         args:
           - --allow-missing-credentials
-        stages: [commit]
+        stages: [pre-commit]
       # Generic file state
       - id: trailing-whitespace
-        stages: [commit]
+        stages: [pre-commit]
       - id: mixed-line-ending
-        stages: [commit]
+        stages: [pre-commit]
       - id: end-of-file-fixer
-        stages: [commit]
+        stages: [pre-commit]
       - id: check-executables-have-shebangs
-        stages: [commit]
+        stages: [pre-commit]
       # Language syntax/formatting
       - id: check-yaml
-        stages: [commit]
+        stages: [pre-commit]
   - repo: https://github.com/mattlqx/pre-commit-ruby
     rev: v1.3.6
     hooks:
@@ -34,9 +34,9 @@ repos:
         args:
           - --fix
         exclude: Gemfile.lock
-        stages: [commit]
+        stages: [pre-commit]
       - id: rspec
-        stages: [commit]
+        stages: [pre-commit]
   - repo: https://github.com/mattlqx/pre-commit-sign
     rev: v1.2.0
     hooks:
