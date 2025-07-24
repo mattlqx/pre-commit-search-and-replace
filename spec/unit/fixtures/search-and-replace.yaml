@@ -19,3 +19,5 @@
 - search: "/Here's one: (?<what>[a-z]+)/"
   replacement: It is \k<what>
   description: Named capture replacement
+- search: /(FORBIDDEN)/
+  description: This search uses capture group without replacement

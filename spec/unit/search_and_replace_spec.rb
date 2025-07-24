@@ -32,6 +32,7 @@ describe SearchAndReplace do
         'ignored double slash comment' => yaml[6],
         'doxygen' => yaml[7],
         'named capture' => yaml[8],
+        'capture group search' => yaml[9],
       }
     end
 
@@ -123,6 +124,13 @@ describe SearchAndReplace do
       expect(sar.call(configs['named capture']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
       expect(sar.call(configs['named capture']).parse_files[0].length).to eq(1)
       expect(sar.call(configs['named capture']).parse_files[0].occurrences[0].replacement).to eq("It is foobar")
+    end
+
+    it 'has correct number of occurrences for capture group search config' do
+      expect(sar.call(configs['capture group search']).parse_files[0]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['capture group search']).parse_files[0].length).to eq(1)
+      expect(sar.call(configs['capture group search']).parse_files[1]).to be_a(SearchAndReplace::FileMatches)
+      expect(sar.call(configs['capture group search']).parse_files[1].empty?).to be true
     end
   end
 
